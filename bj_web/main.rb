@@ -18,6 +18,10 @@ get '/set_player_names' do
 	erb :set_player_names
 end
 
+get '/goodbye' do
+	erb :goodbye
+end
+
 post '/set_player_names' do
 	puts params['name']
 	if params['name'].empty?
@@ -51,6 +55,8 @@ get '/game' do
 		session[:dealer_cards] << session[:deck].pop
 	end
 
+	@player_total = total_calc(session[:player_cards])
+	@dealer_total = total_calc(session[:dealer_cards])
 	#direct to appropriate template
 	erb :blackjack
 
@@ -61,21 +67,74 @@ end
 post '/game' do
 	if params['choice'] == "Hit"
 		session[:player_cards] << session[:deck].pop
-	else
-		session[:dealer_cards] << session[:deck].pop
+		@player_total = total_calc(session[:player_cards])
+		if @player_total > 21
+			@game_over = true
+		end
+	elsif params['choice'] == "Stand"
+		@dealer_total = total_calc(session[:dealer_cards])
+		while @dealer_total < 17
+			session[:dealer_cards] << session[:deck].pop
+			@dealer_total = total_calc(session[:dealer_cards])
+		end
 		@game_over = true
+	elsif params['play_again'] == "Yes"
+		redirect '/game'
+	else
+		redirect '/goodbye'
 	end
+	
+	@player_total = total_calc(session[:player_cards])
+	@dealer_total = total_calc(session[:dealer_cards])
 
+	if @game_over == true
+		@outcome = resolve_game(@player_total, @dealer_total)
+	end
 	erb :blackjack
 end
 
+
 ###############################
 helpers do
-	def show_cards(card_array)
-		card_array.each {|card|
-			card[0]+card[1]
-		}
+
+	def total_calc(card_array)
+		total = 0
+		card_array.each do |card|
+			case card[0]
+				when "Ace" then total += 11
+				when "King" then total += 10
+				when "Queen" then total += 10
+				when "Jack" then total += 10
+				else
+					total += card[0].to_i
+			end
+		end
+		if total > 21 && has_ace(card_array)
+			total -=10
+		end
+		total		
 	end
+
+	def resolve_game(player_total,dealer_total)
+		if player_total > 21
+			"Sorry, you busted! You lose!"
+		elsif dealer_total > 21
+			"Dealer busted! You win!"
+		elsif player_total == dealer_total
+			"Tie game! Better than losing, no?"
+		elsif player_total > dealer_total
+			"Your score beats dealer's score. You win!"
+		elsif player_total < dealer_total
+			"Dealer score beats your score. You lose!"
+		else
+			"Something happened. I can't count. Sorry."
+		end
+	end
+
+	def has_ace(card_array)
+		card_array[0].each.include? "Ace"
+	end
+
 end
 
 ###############################
