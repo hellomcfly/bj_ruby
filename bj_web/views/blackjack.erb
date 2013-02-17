@@ -1,0 +1,23 @@
+<h1>Welcome to Blackjack, <%= session[:name]%>!</h1>
+<br>
+<% if @game_over == true %>
+	<h3><u>Dealer's cards:</u></h3>
+	<h4><%= session[:dealer_cards]%></h4>
+	<br>
+	<h3><u>Your cards:</u><h3>
+	<h4><%= session[:player_cards]%></h4>
+<% else %>
+	<h3><u>Dealer's known card:</u></h3>
+	<h4><%= session[:dealer_cards][0][0]%><%= session[:dealer_cards][0][1]%></h4>
+	<br>
+	<h3><u>Your cards:</u><h3>
+	<h4><%= session[:player_cards]%></h4>
+	<br>
+	<p>Would you like to hit or stand?</p>
+	<form action = '/game' method = 'post' >
+		<input class = "btn btn-success btn-large" type = "submit" value = "Hit" name='choice'>
+		<input class = "btn btn-danger btn-large" type = "submit" value = "Stand" name='choice'/>
+<% end %>
+
+
+
