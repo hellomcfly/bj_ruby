@@ -137,21 +137,3 @@ helpers do
 
 end
 
-###############################
-## Old homework ###############
-###############################
-get '/flux_capicator' do
-	erb :flux_template
-end
-
-get '/bttf_chars' do
-	erb :"/characters/names"
-end
-
-get '/bttf_year' do
-	erb :bttf_year
-end
-
-post '/yearguess' do
-	puts params['year']
-end
